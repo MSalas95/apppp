@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.moviloft.motoapp" >
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name="com.moviloft.motoapp.Volley.AppController"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.moviloft.motoapp.Menu.LoginActivity"
+            android:label="@string/app_name"
+            android:theme="@style/MotoApp_NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.moviloft.motoapp.Menu.Code_Gen"
+            android:label="@string/title_activity_generar_codigo" >
+        </activity>
+        <activity
+            android:name="com.moviloft.motoapp.Menu.Password_change"
+            android:label="@string/title_activity_password_change" >
+        </activity>
+        <activity
+            android:name="com.moviloft.motoapp.Menu.activityRegistro"
+            android:label="@string/title_activity_activity_registro"
+            android:parentActivityName="com.moviloft.motoapp.Menu.LoginActivity"
+            android:theme="@style/MotoApp_NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.moviloft.motoapp.MyActivity" />
+        </activity>
+        <activity
+            android:name="com.moviloft.motoapp.Menu.MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/MotoApp_NoActionBar" >
+        </activity>
+        <activity
+            android:name="com.moviloft.motoapp.Motoclasificados.Motoclasificados"
+            android:label="@string/title_activity_motoclasificados" >
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MotoApp</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_generar_codigo">Olvide mi contraseña</string>
+    <string name="title_activity_password_change">Cambiar contraseña</string>
+    <string name="title_activity_activity_registro">activityRegistro</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="olvide_contraseña"><u>Olvidé mi contraseña</u></string>
+    <string name="accept_terms"><u>Acepto los términos y condiciones</u></string>
+    <string name="title_activity_image_crop">ImageCropActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_motoclasificados">Motoclasificados</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+</resources>
