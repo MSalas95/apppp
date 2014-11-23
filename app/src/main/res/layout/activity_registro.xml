@@ -82,7 +82,8 @@
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_launcher"
                 android:adjustViewBounds="false"
-                android:background="#ffae7c03" />
+                android:background="#ffae7c03"
+                android:scaleType="fitXY" />
         </LinearLayout>
 
     </LinearLayout>

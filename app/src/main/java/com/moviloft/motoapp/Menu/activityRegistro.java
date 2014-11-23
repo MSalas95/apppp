@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
@@ -29,11 +31,23 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.moviloft.motoapp.R;
 import com.moviloft.motoapp.Volley.AppController;
 
+import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class activityRegistro extends ActionBarActivity implements View.OnClickListener {
@@ -43,7 +57,6 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
     EditText etNombre, etApellido, etCiudad,etTelefono, etCorreo, etClave, etConfirmarClave, etMarca, etModelo;
     RadioButton rbMoto1, rbMoto2;
     CheckBox cbTerminos;
-
     String imagePath;
 
     private static int LOAD_IMAGE_RESULTS = 1;
@@ -124,81 +137,91 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
 
 
 
+        RequestParams params = new RequestParams();
 
-        JSONObject jsonObject = new JSONObject();
 
+        params.put("user[moto]","true");
+        params.put("user[nombre]",nombre);
+        params.put("user[apellido]",apellido);
+        params.put("user[cuidad]",ciudad);
+        params.put("user[telefono]",telefono);
+        params.put("user[correo]",correo);
+        params.put("user[password]",clave);
+        params.put("user[password_confirmation]",confirmarclave);
+        params.put("user[marca]",marca);
+        params.put("user[modelo]",modelo);
         try {
 
+            Bitmap bmp = BitmapFactory.decodeFile(imagePath);
 
-           jsonObject.put("moto","true");
+            ExifInterface exif = new ExifInterface(new File(imagePath).getAbsolutePath());
+            int orientation =  exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
-
-
-
-            jsonObject.put("nombre",nombre);
-            jsonObject.put("apellido",apellido);
-            jsonObject.put("cuidad",ciudad);
-            jsonObject.put("telefono",telefono);
-            jsonObject.put("telefono",correo);
-            jsonObject.put("password",clave);
-            jsonObject.put("password_confirmation",confirmarclave);
-            jsonObject.put("marca",marca);
-            jsonObject.put("modelo",modelo);
-            jsonObject.put("avatar",imagePath);
-
-            JSONObject jsonObject2 = new JSONObject();
-            jsonObject2.put("user",jsonObject);
-
-
-            postReq(jsonObject2);
-        } catch (JSONException e) {
+            Bitmap rotatedImg = rotarImagen(bmp, orientation);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            rotatedImg.compress(Bitmap.CompressFormat.PNG, 30, bos);
+            InputStream in = new ByteArrayInputStream(bos.toByteArray());
+            params.put("user[avatar]",in,"imagen.jpg");
+        } catch (Exception e) {
+            Log.e("FileNotFound","No se encontro el archivo");
             e.printStackTrace();
         }
 
+        postReq(params);
 
 
     }
 
 
-   public void postReq(JSONObject jsonObject){
+   public void postReq(RequestParams params){
 
         String URL = "http://104.131.32.54/users.json";
 
         showpDialog();
 
-        JsonObjectRequest req = new JsonObjectRequest(URL, jsonObject,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
+        AsyncHttpClient client = new AsyncHttpClient();
 
-                           // String id = response.getString("id");
+        client.post(URL, params, new JsonHttpResponseHandler() {
 
-                          //  if (id.equals("0")){
-                                hidepDialog();
-                                Toast.makeText(getApplicationContext(), response.get("mensaje").toString(), Toast.LENGTH_LONG).show();
+           @Override
+           public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+               String id;
+               hidepDialog();
+               Log.d("Response: ",response.toString());
+               try {
+                   id = response.getString("id");
+                   Log.d("Response id:",id);
+                   hidepDialog();
 
-                           // } else {
+                   if (id.equals("0")){
+                       hidepDialog();
+                       Toast.makeText(activityRegistro.this,response.getString("mensaje"),Toast.LENGTH_SHORT).show();
+                   } else {
+                       Toast.makeText(activityRegistro.this,"Cuenta registrada",Toast.LENGTH_SHORT).show();
+                       Intent i = new Intent(activityRegistro.this,MainActivity.class);
+                       i.putExtra("userData",response.toString());
+                       hidepDialog();
+                       startActivity(i);
 
-                                Toast.makeText(getApplicationContext(), "Registrado", Toast.LENGTH_LONG).show();
+                   }
 
-                          //  }
-                            VolleyLog.v("Response:%n %s", response.toString(4));
-                        } catch (JSONException e) {
-                            hidepDialog();
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.e("Error: ", error.getMessage());
-                hidepDialog();
-            }
 
-        });
 
-        AppController.getInstance().addToRequestQueue(req);
+               } catch (JSONException e) {
+                   e.printStackTrace();
+                   hidepDialog();
+               }
+           }
+
+           @Override
+           public void onFailure(int statusCode, Header[] headers, Throwable throwable,JSONObject response) {
+               Toast.makeText(activityRegistro.this,"No se ha podido crear la cuenta. Status: "+statusCode,Toast.LENGTH_SHORT).show();
+               hidepDialog();
+               Log.d("Response: ", response.toString());
+           }
+       });
+
+
 
     }
 
@@ -225,7 +248,6 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
 
                 Uri pickedImage = data.getData();
 
-                // Let's read picked image path using content resolver
                 String[] filePath = {MediaStore.Images.Media.DATA};
                 Cursor cursor = getContentResolver().query(pickedImage, filePath, null, null, null);
                 cursor.moveToFirst();
@@ -233,25 +255,104 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
 
                 Log.d("ImagePath",imagePath);
 
-                // Now we need to set the GUI ImageView data with data read from the picked file.
-                ivPhotos.setImageBitmap(BitmapFactory.decodeFile(imagePath));
+                Bitmap img =  BitmapFactory.decodeFile(imagePath);
 
-                // At the end remember to close the cursor or you will end with the RuntimeException!
+                ExifInterface exif = null ;
+
+                try {
+                     exif = new ExifInterface(new File(imagePath).getAbsolutePath());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                int orientation =  exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+                Log.d("Orientation", String.valueOf(orientation));
+                Bitmap rotatedBitmap = rotarImagen(img, orientation);
+                ivPhotos.setImageBitmap(rotatedBitmap);
                 cursor.close();
 
 
             } else {
-                Bundle ext = data.getExtras();
 
-                Bitmap bmp = (Bitmap) ext.get("data");
+                Uri pickedImage = data.getData();
 
-                Log.d("La imagen es: ", bmp.toString());
+                String[] filePath = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(pickedImage, filePath, null, null, null);
+                cursor.moveToFirst();
+                imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
 
-                ivPhotos.setImageBitmap(bmp);
+                Log.d("ImagePath",imagePath);
+                Bitmap img =  BitmapFactory.decodeFile(imagePath);
+                ExifInterface exif = null ;
+                try {
+                    exif = new ExifInterface(new File(imagePath).getAbsolutePath());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                int orientation =  exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+
+                Log.d("Orientation", String.valueOf(orientation));
+
+                Bitmap rotatedBitmap = rotarImagen(img, orientation);
+                ivPhotos.setImageBitmap(rotatedBitmap);
+                cursor.close();
+
             }
         }
+    }
 
+    public static Bitmap rotarImagen(Bitmap bitmap, int orientation) {
 
+        try{
+            Matrix matrix = new Matrix();
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_NORMAL:
+                    return bitmap;
+                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                    matrix.setScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.setRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                    matrix.setRotate(180);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_TRANSPOSE:
+                    matrix.setRotate(90);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.setRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_TRANSVERSE:
+                    matrix.setRotate(-90);
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.setRotate(-90);
+                    break;
+                default:
+                    return bitmap;
+            }
+            try {
+                Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                bitmap.recycle();
+                return bmRotated;
+            }
+            catch (OutOfMemoryError e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 

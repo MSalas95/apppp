@@ -21,14 +21,14 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btClasificados = (Button)findViewById(R.id.btClasificados);
+        /*btClasificados = (Button)findViewById(R.id.btClasificados);
         btClasificados.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, Motoclasificados.class);
                 startActivity(i);
             }
-        });
+        });*/
 
     }
 
