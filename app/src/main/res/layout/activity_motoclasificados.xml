@@ -15,7 +15,7 @@
 
         <TextView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="32dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Ver Motoclasificados"
             android:id="@+id/bt_ver_motoclasificados"

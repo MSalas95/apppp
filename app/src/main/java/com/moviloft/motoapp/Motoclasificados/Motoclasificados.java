@@ -1,29 +1,42 @@
 package com.moviloft.motoapp.Motoclasificados;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.moviloft.motoapp.Menu.LoginActivity;
+import com.moviloft.motoapp.Menu.MainActivity;
 import com.moviloft.motoapp.R;
+import com.moviloft.motoapp.Volley.AppController;
+
+import org.json.JSONArray;
 
 public class Motoclasificados extends ActionBarActivity implements View.OnClickListener {
 
     TextView bt_ver_motoclasificados, bt_publicar_motoclasificado;
 
+    SharedPreferences sharedpreferences;
+
+    public String classifieds;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_motoclasificados);
+
+
+
+        classifieds = "";
 
         //Relacion de elementos con layout
         bt_ver_motoclasificados = (TextView)findViewById(R.id.bt_ver_motoclasificados);
@@ -37,34 +50,17 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new VerMotoclasificadosFragment())
+                    .add(R.id.container, new nuevoMotoclasificadoFragment())
                     .commit();
         }
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_motoclasificados, menu);
-        return true;
+    protected void onResume() {
+        sharedpreferences = getSharedPreferences
+                (LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        super.onResume();
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
     @Override
     public void onClick(View v) {
@@ -77,14 +73,14 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
             case R.id.bt_ver_motoclasificados:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container,
-                                VerMotoclasificadosFragment.newInstance())
+                                nuevoMotoclasificadoFragment.newInstance())
                         .commit();
                 break;
 
             case R.id.bt_publicar_motoclasificado:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container,
-                                PublicarMotoClasificadosFragment.newInstance())
+                                MotoclasificadosFragment.newInstance(classifieds))
                         .commit();
                 break;
 
@@ -92,4 +88,47 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
 
 
     }
+
+
+    public void downloadClassifieds(){
+
+        String URL = "http://104.131.32.54/clasificados.json";
+
+
+        JsonArrayRequest req = new JsonArrayRequest(URL,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+
+                        Log.d("Classified response: ",response.toString());
+
+                        classifieds = response.toString();
+
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+
+                        if (!sharedpreferences.getString("classifieds","").equals("")){
+                            editor.remove("classifieds");
+                        }
+
+                        editor.putString("classifieds",classifieds);
+                        editor.commit();
+
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Error: " + error.getMessage());
+
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(req);
+
+
+    }
+
+
+
 }
