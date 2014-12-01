@@ -9,9 +9,9 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="olvide_contraseña"><u>Olvidé mi contraseña</u></string>
     <string name="accept_terms"><u>Acepto los términos y condiciones</u></string>
-    <string name="title_activity_image_crop">ImageCropActivity</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_motoclasificados">Motoclasificados</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_clasificado">Clasificado</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

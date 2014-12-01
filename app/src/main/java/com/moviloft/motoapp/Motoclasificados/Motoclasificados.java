@@ -14,6 +14,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.moviloft.motoapp.Data.SPreferences;
 import com.moviloft.motoapp.Menu.LoginActivity;
 import com.moviloft.motoapp.Menu.MainActivity;
 import com.moviloft.motoapp.R;
@@ -50,7 +51,7 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new nuevoMotoclasificadoFragment())
+                    .add(R.id.container, new MotoclasificadosFragment())
                     .commit();
         }
     }
@@ -58,7 +59,7 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
     @Override
     protected void onResume() {
         sharedpreferences = getSharedPreferences
-                (LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+                (SPreferences.MyPREFERENCES, Context.MODE_PRIVATE);
         super.onResume();
     }
 
@@ -73,14 +74,14 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
             case R.id.bt_ver_motoclasificados:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container,
-                                nuevoMotoclasificadoFragment.newInstance())
+                                MotoclasificadosFragment.newInstance(classifieds))
                         .commit();
                 break;
 
             case R.id.bt_publicar_motoclasificado:
                 fragmentManager.beginTransaction()
                         .replace(R.id.container,
-                                MotoclasificadosFragment.newInstance(classifieds))
+                                nuevoMotoclasificadoFragment.newInstance())
                         .commit();
                 break;
 
@@ -104,14 +105,6 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
 
                         classifieds = response.toString();
 
-                        SharedPreferences.Editor editor = sharedpreferences.edit();
-
-                        if (!sharedpreferences.getString("classifieds","").equals("")){
-                            editor.remove("classifieds");
-                        }
-
-                        editor.putString("classifieds",classifieds);
-                        editor.commit();
 
 
                     }

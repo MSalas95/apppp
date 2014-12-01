@@ -18,6 +18,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.moviloft.motoapp.Data.SPreferences;
 import com.moviloft.motoapp.R;
 import com.moviloft.motoapp.Volley.AppController;
 
@@ -33,7 +34,6 @@ public class LoginActivity extends ActionBarActivity {
     private ProgressDialog pDialog;
 
     SharedPreferences sharedpreferences;
-    public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String name = "nameKey";
     public static final String pass = "passKey";
 
@@ -93,7 +93,7 @@ public class LoginActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
-        sharedpreferences=getSharedPreferences(MyPREFERENCES,
+        sharedpreferences=getSharedPreferences(SPreferences.MyPREFERENCES,
                 Context.MODE_PRIVATE);
         if (sharedpreferences.contains(name))
         {
@@ -137,24 +137,23 @@ public class LoginActivity extends ActionBarActivity {
                                 String cuidad = response.getString("cuidad");
                                 String telefono = response.getString("telefono");
                                 String correo = response.getString("correo");
-                                String password = response.getString("password_digest");
                                 String moto = response.getString("moto");
                                 String marca = response.getString("marca");
                                 String modelo = response.getString("modelo");
 
                                 SharedPreferences.Editor editor = sharedpreferences.edit();
 
-                                editor.putString("userData",response.toString());
-                                editor.putString("avatar",avatar);
-                                editor.putString("nombre",nombre);
-                                editor.putString("apellido",apellido);
-                                editor.putString("cuidad",cuidad);
-                                editor.putString("telefono",telefono);
-                                editor.putString("correo",correo);
-                                editor.putString("password",password);
-                                editor.putString("moto",moto);
-                                editor.putString("marca",marca);
-                                editor.putString("modelo",modelo);
+                                editor.putString(SPreferences.AVATAR,avatar);
+                                editor.putString(SPreferences.NOMBRE,nombre);
+                                editor.putString(SPreferences.APELLIDO,apellido);
+                                editor.putString(SPreferences.CIUDAD,cuidad);
+                                editor.putString(SPreferences.TELEFONO,telefono);
+                                editor.putString(SPreferences.CORREO,correo);
+                                editor.putString(SPreferences.MOTO,moto);
+                                editor.putString(SPreferences.MARCA,marca);
+                                editor.putString(SPreferences.MODELO,modelo);
+                                editor.putString(SPreferences.ID,id);
+
                                 editor.commit();
 
                                 Intent i = new Intent(LoginActivity.this,MainActivity.class);

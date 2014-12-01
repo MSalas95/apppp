@@ -46,7 +46,12 @@
         </activity>
         <activity
             android:name="com.moviloft.motoapp.Motoclasificados.Motoclasificados"
-            android:label="@string/title_activity_motoclasificados" >
+            android:label="@string/title_activity_motoclasificados"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="com.moviloft.motoapp.Motoclasificados.Clasificado"
+            android:label="@string/title_activity_clasificado" >
         </activity>
     </application>
 

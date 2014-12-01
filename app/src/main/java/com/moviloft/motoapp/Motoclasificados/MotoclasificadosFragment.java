@@ -1,13 +1,36 @@
 package com.moviloft.motoapp.Motoclasificados;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.moviloft.motoapp.ListAdapter.Adaptador;
 import com.moviloft.motoapp.R;
+import com.moviloft.motoapp.Volley.AppController;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +48,7 @@ public class MotoclasificadosFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    public ListView lista;
 
     public static MotoclasificadosFragment newInstance(String classifiedData) {
         MotoclasificadosFragment fragment = new MotoclasificadosFragment();
@@ -44,6 +68,7 @@ public class MotoclasificadosFragment extends Fragment {
         if (getArguments() != null) {
             classifiedData = getArguments().getString(ARG1);
         }
+        makeJsonRequest();
     }
 
     @Override
@@ -52,7 +77,7 @@ public class MotoclasificadosFragment extends Fragment {
 
         View V = inflater.inflate(R.layout.fragment_motoclasificados, container, false);
 
-
+        lista = (ListView)V.findViewById(R.id.lista);
 
 
 
@@ -98,5 +123,152 @@ public class MotoclasificadosFragment extends Fragment {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
+
+
+
+    private void makeJsonRequest() {
+
+        String URL = "http://104.131.32.54/clasificados.json";
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
+                URL, null, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+                try{
+
+                    Log.d("Clasificados", response.toString());
+
+                    JSONArray array = new JSONArray();
+                    array = response.getJSONArray("clasificado");
+
+                    JSONObject obj = new JSONObject();
+                    obj = array.getJSONObject(0);
+
+                    String count = obj.getJSONObject("data").getString("count");
+
+                    if (count.equals("0")){
+
+                        Log.d("No hay clasificados: ","No hay clasificados para mostrar");
+
+                    } else {
+
+                        fillList(array);
+
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getActivity(),
+                            "Error: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+
+
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Error: " + error.getMessage());
+                Toast.makeText(getActivity(),
+                        error.getMessage(), Toast.LENGTH_SHORT).show();
+
+
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
+
+
+    }
+
+
+    public void fillList(JSONArray jsonArray){
+
+        ArrayList<HashMap<String, String>> Lista = new ArrayList<HashMap<String, String>>();
+
+        for (int i=0;i<jsonArray.length();i++){
+
+            try {
+                JSONObject data = jsonArray.getJSONObject(i);
+                JSONObject jsonObject = data.getJSONObject("data");
+
+                HashMap<String,String> map = new HashMap<String, String>();
+
+
+                map.put("clasificado_nombre",jsonObject.getString("clasificado_nombre"));
+                map.put("clasificado_valor",jsonObject.getString("clasificado_valor"));
+                map.put("clasificado_marca",jsonObject.getString("clasificado_marca"));
+                map.put("clasificado_modelo",jsonObject.getString("clasificado_modelo"));
+                map.put("clasificado_ano",jsonObject.getString("clasificado_ano"));
+                map.put("clasificado_cilindrada",jsonObject.getString("clasificado_cilindrada"));
+                map.put("clasificado_descripcion",jsonObject.getString("clasificado_descripcion"));
+                map.put("clasificado_kilometraje", jsonObject.getString("clasificado_kilometraje"));
+               // map.put("user_id",jsonObject.getString("user_id"));
+                map.put("id",jsonObject.getString("id"));
+
+
+                Lista.add(map);
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
+
+         Adaptador adapter= new Adaptador(getActivity(),R.layout.item_classifieds,Lista) {
+            @Override
+            public void onEntrada(Object entrada, View view, ViewHolder holder) {
+                holder.tvTitulo.setText(((HashMap<String,String>) entrada).get("clasificado_nombre"));
+            }
+
+            @Override
+            public void initHolder(ViewHolder holder, View convertView, int position, Context context) {
+
+               holder.tvTitulo = (TextView)convertView.findViewById(R.id.tvTitulo);
+
+            }
+        };
+
+        lista.setAdapter(adapter);
+
+        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                HashMap<String,String> data = (HashMap<String,String>)parent.getItemAtPosition(position);
+
+                Intent i = new Intent(getActivity(),Clasificado.class);
+
+                Bundle bundle = new Bundle();
+
+                bundle.putString("clasificado_nombre",data.get("clasificado_nombre"));
+                bundle.putString("clasificado_valor",data.get("clasificado_valor"));
+                bundle.putString("clasificado_marca",data.get("clasificado_marca"));
+                bundle.putString("clasificado_modelo",data.get("clasificado_modelo"));
+                bundle.putString("clasificado_ano",data.get("clasificado_ano"));
+                bundle.putString("clasificado_cilindrada",data.get("clasificado_cilindrada"));
+                bundle.putString("clasificado_descripcion",data.get("clasificado_descripcion"));
+                bundle.putString("clasificado_kilometraje",data.get("clasificado_kilometraje"));
+             //   bundle.putString("user_id",data.get("user_id"));
+                bundle.putString("id",data.get("id"));
+
+                i.putExtra("extras",bundle);
+
+                startActivity(i);
+
+            }
+        });
+
+        }
+
 
 }

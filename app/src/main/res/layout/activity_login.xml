@@ -42,7 +42,8 @@
             android:hint="Correo electrónico"
             android:textColor="#FFFFFF"
             android:textColorHint="#ff9fa162"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:text="msalas.095@gmail.com" />
 
         <EditText
             android:layout_width="match_parent"
@@ -54,7 +55,8 @@
             android:textColorHint="#ff9fa162"
             android:textSize="16sp"
             android:textColor="#ffffffff"
-            android:textIsSelectable="false" />
+            android:textIsSelectable="false"
+            android:text="123456" />
 
         <Button
             android:layout_width="110dp"
