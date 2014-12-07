@@ -32,10 +32,10 @@
             android:layout_alignParentStart="true"
             android:textSize="20sp" />
 
-        <ImageView
+        <com.android.volley.toolbox.NetworkImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView3"
+                android:id="@+id/ivImagen"
                 android:layout_below="@+id/tvNombre"
             android:layout_weight="0.3"
             android:layout_marginLeft="5dp"
@@ -261,10 +261,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
+                    <com.android.volley.toolbox.NetworkImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:id="@+id/imageView8"
+                        android:id="@+id/ivAvatar"
                         android:src="@drawable/ic_launcher"
                         android:layout_marginBottom="5dp"
                         android:layout_gravity="center"
@@ -282,7 +282,7 @@
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceSmall"
                             android:text="Nombre y apellido"
-                            android:id="@+id/tvNombre"
+                            android:id="@+id/tvUserNombre"
                             android:textColor="#ffffffff" />
 
                         <TextView

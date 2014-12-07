@@ -8,7 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.moviloft.motoapp.R;
+import com.moviloft.motoapp.Volley.AppController;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,11 +31,12 @@ public class PublicidadFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_publicidad, container, false);
 
-        ImageView ivPublicidad = (ImageView)v.findViewById(R.id.ivPublicidad);
+        NetworkImageView ivPublicidad = (NetworkImageView)v.findViewById(R.id.ivPublicidad);
 
         Bundle bundle = getArguments();
 
-        ivPublicidad.setBackgroundColor(bundle.getInt("Color"));
+        ImageLoader imageLoader = AppController.getInstance().getImageLoader();
+        ivPublicidad.setImageUrl(bundle.getString("imagenPrincipal"), imageLoader);
 
         return v;
     }

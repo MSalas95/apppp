@@ -6,11 +6,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.moviloft.motoapp.R;
+import com.moviloft.motoapp.Volley.AppController;
 
 public class Clasificado extends ActionBarActivity {
 
-    TextView tvValor, tvMarca, tvModelo, tvAño,tvCilindrada,tvKilometraje,tvDescripcion, tvNombre;
+    TextView tvValor, tvMarca, tvModelo, tvAño,tvCilindrada,tvKilometraje,tvDescripcion, tvNombre,tvUserNombre,tvLugar,tvCorreo;
+
+    NetworkImageView ivAvatar, ivImagen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +30,11 @@ public class Clasificado extends ActionBarActivity {
         tvKilometraje = ( TextView)findViewById(R.id.tvKilometraje);
         tvDescripcion = ( TextView)findViewById(R.id.tvDescripcion);
         tvNombre = (TextView)findViewById(R.id.tvNombre);
+        tvUserNombre = ( TextView)findViewById(R.id.tvUserNombre);
+        tvLugar = ( TextView)findViewById(R.id.tvLugar);
+        tvCorreo = (TextView)findViewById(R.id.tvCorreo);
+        ivAvatar = (NetworkImageView)findViewById(R.id.ivAvatar);
+        ivImagen = (NetworkImageView)findViewById(R.id.ivImagen);
 
 
         Bundle bundle = getIntent().getBundleExtra("extras");
@@ -37,7 +47,18 @@ public class Clasificado extends ActionBarActivity {
         String cilindrada = bundle.getString("clasificado_cilindrada");
         String descripcion = bundle.getString("clasificado_descripcion");
         String kilometraje = bundle.getString("clasificado_kilometraje");
+        String user_nombre = bundle.getString("nombre");
+        String user_apellido = bundle.getString("apellido");
+        String user_correo = bundle.getString("correo");
+        String ciudad = bundle.getString("ciudad");
 
+        String avatar = bundle.getString("avatar");
+        String imagen = bundle.getString("clasificadoImagen");
+
+        ImageLoader imageLoader = AppController.getInstance().getImageLoader();
+
+        ivAvatar.setImageUrl("http://motoapp.com.co"+avatar,imageLoader);
+        ivImagen.setImageUrl("http://motoapp.com.co"+imagen,imageLoader);
 
         tvValor.setText(valor);
         tvMarca.setText(marca);
@@ -47,6 +68,9 @@ public class Clasificado extends ActionBarActivity {
         tvKilometraje.setText(kilometraje);
         tvDescripcion.setText(descripcion);
         tvNombre.setText(nombre);
+        tvUserNombre.setText(user_nombre+" "+user_apellido);
+        tvCorreo.setText(user_correo);
+        tvLugar.setText(ciudad);
 
 
     }

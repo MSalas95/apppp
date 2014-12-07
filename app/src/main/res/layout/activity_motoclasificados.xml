@@ -23,11 +23,11 @@
             android:layout_marginLeft="2dp"
             android:layout_marginTop="2dp"
             android:layout_marginRight="1dp"
-            android:background="#ff828282"
+            android:background="#ffbabe36"
             android:gravity="center"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:textColor="#ffeeeeee"
+            android:textColor="#ff000000"
             android:textSize="14sp"
             android:textStyle="bold"
             android:maxLines="1" />

@@ -17,9 +17,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.moviloft.motoapp.Motoclasificados.Motoclasificados;
 import com.moviloft.motoapp.R;
+import com.moviloft.motoapp.Volley.AppController;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -44,10 +55,20 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-
-
-        mAdapter = new MyAdapter(getSupportFragmentManager());
         viewPager=(ViewPager)findViewById(R.id.pager);
+
+
+        try {
+            setBanners(new JSONArray(getIntent().getStringExtra("array")));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setBanners(JSONArray data) throws JSONException {
+
+        mAdapter = new MyAdapter(getSupportFragmentManager(), data);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
@@ -70,6 +91,7 @@ public class MainActivity extends ActionBarActivity {
             public void onPageScrollStateChanged(int arg0) {
             }
         });
+
 
     }
 
@@ -124,29 +146,24 @@ public class MainActivity extends ActionBarActivity {
 
         ArrayList<PublicidadFragment> list;
 
-        public MyAdapter(FragmentManager fm) {
+        public MyAdapter(FragmentManager fm, JSONArray array) throws JSONException {
 
             super(fm);
 
             list = new ArrayList<PublicidadFragment>();
 
-            int a=0;
+            for (int i=0;i<array.length();i++){
 
-            for (int i=0;i<10;i++){
-                a +=1;
-                int color = 0;
-                switch (a){
-                    case 1: color = Color.CYAN;
-                        break;
-                    case 2: color = Color.MAGENTA;
-                        break;
-                    case 3: color = Color.YELLOW;
-                        a =0;
-                        break;
-                }
+                JSONObject obj = array.getJSONObject(i);
+                JSONObject data = obj.getJSONObject("data");
+
+                String imagenPrincipal = "http://motoapp.com.co"+data.getString("imagePrincipal");
+                String accion_banner = data.getString("accion_banner");
+
 
                 Bundle bundle = new Bundle();
-                bundle.putInt("Color",color);
+                bundle.putString("imagenPrincipal", imagenPrincipal);
+                bundle.putString("accion_banner",accion_banner);
 
                 PublicidadFragment fragment =new PublicidadFragment();
                 fragment.setArguments(bundle);

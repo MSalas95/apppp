@@ -23,9 +23,10 @@
 
                 <LinearLayout
                     android:orientation="vertical"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.6">
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center">
 
                     <EditText
                         android:layout_width="match_parent"
@@ -34,7 +35,8 @@
                         android:textSize="14sp"
                         android:textColorHint="#ff9fa162"
                         android:hint="Nombre de Motoclasificado"
-                        android:textColor="#ffffffff" />
+                        android:textColor="#ffffffff"
+                        android:layout_marginBottom="5dp" />
 
                     <EditText
                         android:layout_width="match_parent"
@@ -43,7 +45,8 @@
                         android:textSize="14sp"
                         android:textColorHint="#ff9fa162"
                         android:hint="Valor del artículo o servicio"
-                        android:textColor="#ffffffff" />
+                        android:textColor="#ffffffff"
+                        android:layout_marginBottom="5dp" />
 
                     <EditText
                         android:layout_width="match_parent"
@@ -57,9 +60,21 @@
                 </LinearLayout>
 
                 <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.4"></RelativeLayout>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/asd"
+                    android:layout_weight="0">
+
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:id="@+id/iv_imagen_clasificado"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:src="@android:drawable/ic_menu_gallery"
+                        android:scaleType="fitXY" />
+                </RelativeLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -80,7 +95,8 @@
                         android:textSize="14sp"
                         android:textColorHint="#ff9fa162"
                         android:hint="Modelo"
-                        android:textColor="#ffffffff" />
+                        android:textColor="#ffffffff"
+                        android:layout_marginBottom="5dp" />
 
                     <EditText
                         android:layout_width="match_parent"
@@ -89,7 +105,8 @@
                         android:textSize="14sp"
                         android:textColorHint="#ff9fa162"
                         android:hint="Cilindrada"
-                        android:textColor="#ffffffff" />
+                        android:textColor="#ffffffff"
+                        android:layout_marginBottom="5dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -105,7 +122,8 @@
                         android:textSize="14sp"
                         android:textColorHint="#ff9fa162"
                         android:hint="Año"
-                        android:textColor="#ffffffff" />
+                        android:textColor="#ffffffff"
+                        android:layout_marginBottom="5dp" />
 
                     <EditText
                         android:layout_width="match_parent"
@@ -114,7 +132,8 @@
                         android:textSize="14sp"
                         android:textColorHint="#ff9fa162"
                         android:hint="Kilometraje"
-                        android:textColor="#ffffffff" />
+                        android:textColor="#ffffffff"
+                        android:layout_marginBottom="5dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -125,7 +144,6 @@
                 android:inputType="textMultiLine"
                 android:ems="10"
                 android:id="@+id/etDescripcion"
-                android:layout_weight="0"
                 android:textSize="14sp"
                 android:textColor="#ffffffff"
                 android:minLines="3"

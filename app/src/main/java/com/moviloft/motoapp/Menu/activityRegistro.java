@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,16 +26,12 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.moviloft.motoapp.Data.Images;
+import com.moviloft.motoapp.Data.SelectDialog;
 import com.moviloft.motoapp.R;
-import com.moviloft.motoapp.Volley.AppController;
 
 import org.apache.http.Header;
 import org.json.JSONException;
@@ -45,7 +40,6 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -55,11 +49,13 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
     Button btRespuesta;
     ImageView ivPhotos;
     EditText etNombre, etApellido, etCiudad,etTelefono, etCorreo, etClave, etConfirmarClave, etMarca, etModelo;
-    RadioButton rbMoto1, rbMoto2;
+    RadioButton rbMoto1;
     CheckBox cbTerminos;
     String imagePath;
 
-    private static int LOAD_IMAGE_RESULTS = 1;
+    Bitmap rotatedBitmap;
+
+
 
     private ProgressDialog pDialog;
 
@@ -110,7 +106,6 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
             case R.id.ivAvatar:
 
                 FragmentManager fragmentManager = getSupportFragmentManager();
-
                 SelectDialog dialog = new SelectDialog();
                 dialog.show(fragmentManager,"Seleccion");
                 dialog.setCancelable(true);
@@ -151,15 +146,8 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
         params.put("user[marca]",marca);
         params.put("user[modelo]",modelo);
         try {
-
-            Bitmap bmp = BitmapFactory.decodeFile(imagePath);
-
-            ExifInterface exif = new ExifInterface(new File(imagePath).getAbsolutePath());
-            int orientation =  exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-
-            Bitmap rotatedImg = rotarImagen(bmp, orientation);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            rotatedImg.compress(Bitmap.CompressFormat.PNG, 30, bos);
+            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
             InputStream in = new ByteArrayInputStream(bos.toByteArray());
             params.put("user[avatar]",in,"imagen.jpg");
         } catch (Exception e) {
@@ -223,7 +211,7 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
 
 
 
-    }
+   }
 
     private void showpDialog() {
         if (!pDialog.isShowing())
@@ -244,165 +232,12 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
 
         if (resultCode == Activity.RESULT_OK && data != null) {
 
-            if (requestCode == LOAD_IMAGE_RESULTS) {
+            Uri pickedImage = data.getData();
+            Log.d("pickedImage: ",pickedImage.toString());
+            rotatedBitmap = Images.getRotatedBitmap(activityRegistro.this,pickedImage);
+            ivPhotos.setImageBitmap(rotatedBitmap);
 
-                Uri pickedImage = data.getData();
-
-                String[] filePath = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getContentResolver().query(pickedImage, filePath, null, null, null);
-                cursor.moveToFirst();
-                imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
-
-                Log.d("ImagePath",imagePath);
-
-                Bitmap img =  BitmapFactory.decodeFile(imagePath);
-
-                ExifInterface exif = null ;
-
-                try {
-                     exif = new ExifInterface(new File(imagePath).getAbsolutePath());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                int orientation =  exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-
-                Log.d("Orientation", String.valueOf(orientation));
-                Bitmap rotatedBitmap = rotarImagen(img, orientation);
-                ivPhotos.setImageBitmap(rotatedBitmap);
-                cursor.close();
-
-
-            } else {
-
-                Uri pickedImage = data.getData();
-
-                String[] filePath = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getContentResolver().query(pickedImage, filePath, null, null, null);
-                cursor.moveToFirst();
-                imagePath = cursor.getString(cursor.getColumnIndex(filePath[0]));
-
-                Log.d("ImagePath",imagePath);
-                Bitmap img =  BitmapFactory.decodeFile(imagePath);
-                ExifInterface exif = null ;
-                try {
-                    exif = new ExifInterface(new File(imagePath).getAbsolutePath());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                int orientation =  exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-
-                Log.d("Orientation", String.valueOf(orientation));
-
-                Bitmap rotatedBitmap = rotarImagen(img, orientation);
-                ivPhotos.setImageBitmap(rotatedBitmap);
-                cursor.close();
-
-            }
         }
     }
-
-    public static Bitmap rotarImagen(Bitmap bitmap, int orientation) {
-
-        try{
-            Matrix matrix = new Matrix();
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_NORMAL:
-                    return bitmap;
-                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                    matrix.setScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    matrix.setRotate(180);
-                    break;
-                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                    matrix.setRotate(180);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_TRANSPOSE:
-                    matrix.setRotate(90);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    matrix.setRotate(90);
-                    break;
-                case ExifInterface.ORIENTATION_TRANSVERSE:
-                    matrix.setRotate(-90);
-                    matrix.postScale(-1, 1);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    matrix.setRotate(-90);
-                    break;
-                default:
-                    return bitmap;
-            }
-            try {
-                Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                bitmap.recycle();
-                return bmRotated;
-            }
-            catch (OutOfMemoryError e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-    /*****Dialog****/
-
-     public static class SelectDialog extends DialogFragment {
-
-        Bitmap bmp;
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            final String[] items = {"Tomar foto", "Ir a galería"};
-
-            AlertDialog.Builder builder =
-                    new AlertDialog.Builder(getActivity());
-
-            builder.setTitle("Seleccionar")
-                    .setItems(items, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int item) {
-                            Log.i("Dialogos", "Opción elegida: " + items[item]);
-
-                            switch (item){
-                                case 0:
-
-                                    Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                    getActivity().startActivityForResult(i, 0);
-
-
-                                    break;
-                                case 1:
-                                    Intent j = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                    j.setType("image/*");
-                                    getActivity().startActivityForResult(j, LOAD_IMAGE_RESULTS);
-
-
-                                    break;
-                            }
-
-
-
-                        }
-                    });
-
-            return builder.create();
-        }
-
-
-    }
-
-
 
 }

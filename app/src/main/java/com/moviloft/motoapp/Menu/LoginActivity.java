@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
@@ -22,6 +23,7 @@ import com.moviloft.motoapp.Data.SPreferences;
 import com.moviloft.motoapp.R;
 import com.moviloft.motoapp.Volley.AppController;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -66,6 +68,7 @@ public class LoginActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Intent i = new Intent(LoginActivity.this,activityRegistro.class);
                 startActivity(i);
+
             }
         });
 
@@ -82,10 +85,6 @@ public class LoginActivity extends ActionBarActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-
-                /*Intent i = new Intent(LoginActivity.this,MainActivity.class);
-                startActivity(i);*/
             }
         });
 
@@ -156,8 +155,7 @@ public class LoginActivity extends ActionBarActivity {
 
                                 editor.commit();
 
-                                Intent i = new Intent(LoginActivity.this,MainActivity.class);
-                                startActivity(i);
+                                makeJsonRequest();
 
 
                             }
@@ -177,6 +175,55 @@ public class LoginActivity extends ActionBarActivity {
         });
 
         AppController.getInstance().addToRequestQueue(req);
+
+
+    }
+
+    private void makeJsonRequest() {
+
+        String URL = "http://104.131.32.54/banners.json";
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
+                URL, null, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+
+                try{
+
+                    Log.d("Clasificados", response.toString());
+
+                    JSONArray array;
+                    array = response.getJSONArray("banners");
+
+                    Log.d("JsonArray= ",array.toString());
+
+                    Intent i = new Intent(LoginActivity.this,MainActivity.class);
+                    i.putExtra("array",array.toString());
+                    startActivity(i);
+                    hidepDialog();
+                    finish();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    hidepDialog();
+                }
+
+
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Error: " + error.getMessage());
+                hidepDialog();
+
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq);
 
 
     }

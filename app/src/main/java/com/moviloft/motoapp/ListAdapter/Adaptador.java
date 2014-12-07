@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -57,7 +59,7 @@ public abstract class Adaptador extends BaseAdapter {
     public class ViewHolder {
 
         public TextView tvTitulo;
-        public ImageView ivImagen;
+        public NetworkImageView ivImagen;
 
 
     }

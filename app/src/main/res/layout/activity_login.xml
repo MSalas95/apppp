@@ -43,7 +43,7 @@
             android:textColor="#FFFFFF"
             android:textColorHint="#ff9fa162"
             android:textSize="16sp"
-            android:text="msalas.095@gmail.com" />
+            android:text="manuel@salas.com" />
 
         <EditText
             android:layout_width="match_parent"

@@ -1,33 +1,51 @@
 package com.moviloft.motoapp.Motoclasificados;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.moviloft.motoapp.Data.Images;
 import com.moviloft.motoapp.Data.SPreferences;
+import com.moviloft.motoapp.Data.SelectDialog;
+import com.moviloft.motoapp.Menu.MainActivity;
 import com.moviloft.motoapp.R;
 import com.moviloft.motoapp.Volley.AppController;
 
+import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link nuevoMotoclasificadoFragment.OnFragmentInteractionListener} interface
+ * {link nuevoMotoclasificadoFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link nuevoMotoclasificadoFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -41,11 +59,13 @@ public class nuevoMotoclasificadoFragment extends Fragment {
     private ProgressDialog pDialog;
     private Button btGuardar;
 
-    // TODO: Rename and change types of parameters
+    public ImageView iv_imagen_clasificado;
+
+
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private Bitmap rotatedBitmap;
 
     /**
      * Use this factory method to create a new instance of
@@ -94,52 +114,25 @@ public class nuevoMotoclasificadoFragment extends Fragment {
             }
         });
 
+        iv_imagen_clasificado = (ImageView)V.findViewById(R.id.iv_imagen_clasificado);
+
+        iv_imagen_clasificado.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                SelectDialog dialog = new SelectDialog();
+                dialog.show(fragmentManager,"Seleccion");
+                dialog.setCancelable(true);
+            }
+        });
+
+
         pDialog = new ProgressDialog(getActivity());
         pDialog.setMessage("Subiendo clasificado..");
         pDialog.setCancelable(false);
 
         return V;
 
-
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-   /* @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }*/
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
     }
 
 
@@ -164,59 +157,83 @@ public class nuevoMotoclasificadoFragment extends Fragment {
         String kilometraje = String.valueOf(etKilometraje.getText());
         String descripcion = String.valueOf(etDescripcion.getText());
 
-        JSONObject jsonObject2 = new JSONObject();
-
-        jsonObject2.put("clasificado_nombre",nombre);
-        jsonObject2.put("clasificado_valor",valor);
-        jsonObject2.put("clasificado_marca",marca);
-        jsonObject2.put("clasificado_modelo",modelo);
-        jsonObject2.put("clasificado_ano",año);
-        jsonObject2.put("clasificado_cilindrada",cilindrada);
-        jsonObject2.put("clasificado_kilometraje",kilometraje);
-        jsonObject2.put("clasificado_descripcion",descripcion);
-        jsonObject2.put("user_id", SPreferences.getPreference(SPreferences.ID,getActivity()));
+        RequestParams params = new RequestParams();
 
 
-       JSONObject jsonObject = new JSONObject();
-       jsonObject.put("clasificado",jsonObject2);
-       Log.d("data: ",jsonObject.toString());
+        params.put("clasificado[clasificado_nombre]",nombre);
+        params.put("clasificado[clasificado_valor]",valor);
+        params.put("clasificado[clasificado_marca]",marca);
+        params.put("clasificado[clasificado_modelo]",modelo);
+        params.put("clasificado[clasificado_ano]",año);
+        params.put("clasificado[clasificado_cilindrada]",cilindrada);
+        params.put("clasificado[clasificado_kilometraje]",kilometraje);
+        params.put("clasificado[clasificado_descripcion]",descripcion);
+        params.put("clasificado[user_id]",SPreferences.getPreference(SPreferences.ID,getActivity()));
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            InputStream in = new ByteArrayInputStream(bos.toByteArray());
+            params.put("clasificado[clasificado_imagen]",in,"imagen.jpg");
+        } catch (Exception e) {
+            Log.e("FileNotFound","No se encontro el archivo");
+            e.printStackTrace();
+        }
 
-       PostReq(jsonObject);
+        Log.d("Datos subidos: ",params.toString());
+
+        postReq(params);
 
     }
 
 
-    private void PostReq( JSONObject jsonObject){
+    public void postReq(RequestParams params){
 
         String URL = "http://104.131.32.54/clasificados.json";
 
         showpDialog();
 
-        JsonObjectRequest req = new JsonObjectRequest(URL, jsonObject,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
+        AsyncHttpClient client = new AsyncHttpClient();
 
-                            Log.d("Respuesta de registro: ",response.toString());
+        client.post(URL, params, new JsonHttpResponseHandler() {
 
-                            VolleyLog.v("Response:%n %s", response.toString(4));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        hidepDialog();
-                    }
-                }, new Response.ErrorListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.e("Error: ", error.getMessage());
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
                 hidepDialog();
+                Log.d("Response: ",response.toString());
+
+                Toast.makeText(getActivity(),"Su clasificado ha sido publicado",Toast.LENGTH_LONG).show();
+
             }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable,JSONObject response) {
+
+                Log.d("Response: ", response.toString());
+                hidepDialog();
+            }
         });
 
-        AppController.getInstance().addToRequestQueue(req);
     }
+
+
+    @Override
+    public void onActivityResult(int requestCode,int resultCode,Intent data) {
+        super .onActivityResult(requestCode, resultCode, data);
+
+        Log.d("ResultCode", String.valueOf(resultCode));
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+
+            Uri pickedImage = data.getData();
+            rotatedBitmap = Images.getRotatedBitmap(getActivity(), pickedImage);
+            iv_imagen_clasificado.setImageBitmap(rotatedBitmap);
+
+        }
+    }
+
+
+
 
     private void showpDialog() {
         if (!pDialog.isShowing())

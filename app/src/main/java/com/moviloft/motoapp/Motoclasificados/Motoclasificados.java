@@ -3,6 +3,8 @@ package com.moviloft.motoapp.Motoclasificados;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -72,6 +74,11 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
         switch (id){
 
             case R.id.bt_ver_motoclasificados:
+
+                bt_ver_motoclasificados.setBackgroundColor(Color.parseColor("#ffbabe36"));
+                bt_ver_motoclasificados.setTextColor(Color.BLACK);
+                bt_publicar_motoclasificado.setBackgroundColor(Color.parseColor("#ff828282"));
+                bt_publicar_motoclasificado.setTextColor(Color.WHITE);
                 fragmentManager.beginTransaction()
                         .replace(R.id.container,
                                 MotoclasificadosFragment.newInstance(classifieds))
@@ -79,6 +86,10 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
                 break;
 
             case R.id.bt_publicar_motoclasificado:
+                bt_ver_motoclasificados.setBackgroundColor(Color.parseColor("#ff828282"));
+                bt_ver_motoclasificados.setTextColor(Color.WHITE);
+                bt_publicar_motoclasificado.setBackgroundColor(Color.parseColor("#ffbabe36"));
+                bt_publicar_motoclasificado.setTextColor(Color.BLACK);
                 fragmentManager.beginTransaction()
                         .replace(R.id.container,
                                 nuevoMotoclasificadoFragment.newInstance())
@@ -90,38 +101,11 @@ public class Motoclasificados extends ActionBarActivity implements View.OnClickL
 
     }
 
-
-    public void downloadClassifieds(){
-
-        String URL = "http://104.131.32.54/clasificados.json";
-
-
-        JsonArrayRequest req = new JsonArrayRequest(URL,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-
-                        Log.d("Classified response: ",response.toString());
-
-                        classifieds = response.toString();
-
-
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("Error: " + error.getMessage());
-
-            }
-        });
-
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(req);
-
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        fragment.onActivityResult(requestCode, resultCode, data);
     }
-
 
 
 }

@@ -20,7 +20,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.NetworkImageView;
 import com.moviloft.motoapp.ListAdapter.Adaptador;
 import com.moviloft.motoapp.R;
 import com.moviloft.motoapp.Volley.AppController;
@@ -28,6 +30,7 @@ import com.moviloft.motoapp.Volley.AppController;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,9 +81,6 @@ public class MotoclasificadosFragment extends Fragment {
         View V = inflater.inflate(R.layout.fragment_motoclasificados, container, false);
 
         lista = (ListView)V.findViewById(R.id.lista);
-
-
-
 
         return V;
     }
@@ -140,13 +140,13 @@ public class MotoclasificadosFragment extends Fragment {
 
                     Log.d("Clasificados", response.toString());
 
-                    JSONArray array = new JSONArray();
+                    JSONArray array;
                     array = response.getJSONArray("clasificado");
 
-                    JSONObject obj = new JSONObject();
+                    JSONObject obj;
                     obj = array.getJSONObject(0);
 
-                    String count = obj.getJSONObject("data").getString("count");
+                    String count = obj.optJSONObject("data").getString("count");
 
                     if (count.equals("0")){
 
@@ -209,7 +209,12 @@ public class MotoclasificadosFragment extends Fragment {
                 map.put("clasificado_cilindrada",jsonObject.getString("clasificado_cilindrada"));
                 map.put("clasificado_descripcion",jsonObject.getString("clasificado_descripcion"));
                 map.put("clasificado_kilometraje", jsonObject.getString("clasificado_kilometraje"));
-               // map.put("user_id",jsonObject.getString("user_id"));
+                map.put("nombre",jsonObject.getString("nombre"));
+                map.put("apellido",jsonObject.getString("apellido"));
+                map.put("ciudad",jsonObject.getString("cuidad"));
+                map.put("correo", jsonObject.getString("correo"));
+                map.put("clasificadoImagen", jsonObject.getString("clasificadoImagen"));
+                map.put("avatar", jsonObject.getString("avatar"));
                 map.put("id",jsonObject.getString("id"));
 
 
@@ -227,13 +232,16 @@ public class MotoclasificadosFragment extends Fragment {
          Adaptador adapter= new Adaptador(getActivity(),R.layout.item_classifieds,Lista) {
             @Override
             public void onEntrada(Object entrada, View view, ViewHolder holder) {
+                ImageLoader imageLoader = AppController.getInstance().getImageLoader();
                 holder.tvTitulo.setText(((HashMap<String,String>) entrada).get("clasificado_nombre"));
+                holder.ivImagen.setImageUrl("http://motoapp.com.co"+((HashMap<String,String>) entrada).get("clasificadoImagen"),imageLoader);
             }
 
             @Override
             public void initHolder(ViewHolder holder, View convertView, int position, Context context) {
 
                holder.tvTitulo = (TextView)convertView.findViewById(R.id.tvTitulo);
+                holder.ivImagen = (NetworkImageView)convertView.findViewById(R.id.ivImagen);
 
             }
         };
@@ -258,9 +266,13 @@ public class MotoclasificadosFragment extends Fragment {
                 bundle.putString("clasificado_cilindrada",data.get("clasificado_cilindrada"));
                 bundle.putString("clasificado_descripcion",data.get("clasificado_descripcion"));
                 bundle.putString("clasificado_kilometraje",data.get("clasificado_kilometraje"));
-             //   bundle.putString("user_id",data.get("user_id"));
+                bundle.putString("nombre",data.get("nombre"));
+                bundle.putString("apellido",data.get("apellido"));
+                bundle.putString("correo",data.get("correo"));
+                bundle.putString("ciudad",data.get("ciudad"));
                 bundle.putString("id",data.get("id"));
-
+                bundle.putString("clasificadoImagen",data.get("clasificadoImagen"));
+                bundle.putString("avatar",data.get("avatar"));
                 i.putExtra("extras",bundle);
 
                 startActivity(i);
@@ -268,7 +280,8 @@ public class MotoclasificadosFragment extends Fragment {
             }
         });
 
-        }
+    }
+
 
 
 }
