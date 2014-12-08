@@ -39,7 +39,8 @@
                 android:layout_below="@+id/tvNombre"
             android:layout_weight="0.3"
             android:layout_marginLeft="5dp"
-            android:src="@android:drawable/ic_menu_gallery" />
+            android:src="@android:drawable/ic_menu_gallery"
+            android:scaleType="fitXY" />
 
         <ScrollView
             android:layout_width="match_parent"

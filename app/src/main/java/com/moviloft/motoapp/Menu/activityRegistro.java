@@ -51,9 +51,8 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
     EditText etNombre, etApellido, etCiudad,etTelefono, etCorreo, etClave, etConfirmarClave, etMarca, etModelo;
     RadioButton rbMoto1;
     CheckBox cbTerminos;
-    String imagePath;
 
-    Bitmap rotatedBitmap;
+    Bitmap Avatar;
 
 
 
@@ -145,18 +144,19 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
         params.put("user[password_confirmation]",confirmarclave);
         params.put("user[marca]",marca);
         params.put("user[modelo]",modelo);
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-            InputStream in = new ByteArrayInputStream(bos.toByteArray());
-            params.put("user[avatar]",in,"imagen.jpg");
-        } catch (Exception e) {
-            Log.e("FileNotFound","No se encontro el archivo");
-            e.printStackTrace();
+
+        if (Avatar != null){
+            try {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                Avatar.compress(Bitmap.CompressFormat.PNG, 100, bos);
+                InputStream in = new ByteArrayInputStream(bos.toByteArray());
+                params.put("user[avatar]",in,"imagen.jpg");
+            } catch (Exception e) {
+                Log.e("FileNotFound","No se encontro el archivo");
+                e.printStackTrace();
+            }
         }
-
         postReq(params);
-
 
     }
 
@@ -234,8 +234,8 @@ public class activityRegistro extends ActionBarActivity implements View.OnClickL
 
             Uri pickedImage = data.getData();
             Log.d("pickedImage: ",pickedImage.toString());
-            rotatedBitmap = Images.getRotatedBitmap(activityRegistro.this,pickedImage);
-            ivPhotos.setImageBitmap(rotatedBitmap);
+            Avatar = Images.getRotatedBitmap(activityRegistro.this,pickedImage);
+            ivPhotos.setImageBitmap(Avatar);
 
         }
     }

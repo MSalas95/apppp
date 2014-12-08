@@ -37,7 +37,7 @@
             android:theme="@style/MotoApp_NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.moviloft.motoapp.MyActivity" />
+                android:value="com.moviloft.motoapp.Menu.MainActivity" />
         </activity>
         <activity
             android:name="com.moviloft.motoapp.Menu.MainActivity"
